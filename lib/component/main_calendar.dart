@@ -17,6 +17,16 @@ class MainCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return TableCalendar(
       locale: 'ko_kr',
+      daysOfWeekStyle: DaysOfWeekStyle(
+        weekdayStyle: TextStyle(
+          fontSize: 11, // 평일 요일 텍스트 크기
+          color: Colors.black,
+        ),
+        weekendStyle: TextStyle(
+          fontSize: 11, // 주말 요일 텍스트 크기
+          color: Colors.red,
+        ),
+      ),
       onDaySelected: onDaySelected,
       selectedDayPredicate: (date) =>
         date.year == selectedDate.year &&
