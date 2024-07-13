@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycalendar/model/schedule_model.dart';
+import 'package:uuid/uuid.dart';
 
 import '../repository/schedule_repository.dart';
 
@@ -34,15 +35,16 @@ class ScheduleProvider extends ChangeNotifier {
   }) async {
     final targetDate = schedule.date;
 
-    final savedSchedule = await repository.createSchedule(schedule: schedule);
+    final uuid = Uuid();
+
+    final tempId = uuid.v4();
+    final newSchedule = schedule.copyWith(id: tempId);
 
     cache.update(
       targetDate,
       (value) => [
         ...value,
-        schedule.copyWith(
-          id: savedSchedule,
-        ),
+        newSchedule,
       ]..sort(
           (a, b) => a.startTime.compareTo(
             b.startTime,
@@ -50,6 +52,24 @@ class ScheduleProvider extends ChangeNotifier {
         ),
       ifAbsent: () => [schedule],
     );
+
+    notifyListeners();
+
+    try {
+      final savedSchedule = await repository.createSchedule(schedule: schedule);
+
+      cache.update(
+        targetDate,
+        (value) => value
+            .map((e) => e.id == tempId ? e.copyWith(id: savedSchedule) : e)
+            .toList(),
+      );
+    } catch (e) {
+      cache.update(
+        targetDate,
+          (value) => value.where((e) => e.id != tempId).toList()
+      );
+    }
 
     notifyListeners();
   }
@@ -62,7 +82,7 @@ class ScheduleProvider extends ChangeNotifier {
 
     cache.update(
       date,
-        (value) => value.where((e) => e.id != id).toList(),
+      (value) => value.where((e) => e.id != id).toList(),
       ifAbsent: () => [],
     );
 

@@ -6,7 +6,7 @@ import 'package:mycalendar/model/schedule_model.dart';
 class ScheduleRepository {
   final _dio = Dio();
   final _targetUrl =
-      'http://${Platform.isAndroid ? '192.168.35.228' : 'localhost'}:3000/schedule';
+      'http://${Platform.isAndroid ? '172.30.1.44' : 'localhost'}:3000/schedule';
 
   Future<List<ScheduleModel>> getSchedules({
     required DateTime date,
